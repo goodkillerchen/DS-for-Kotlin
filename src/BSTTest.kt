@@ -4,40 +4,38 @@ import kotlin.random.Random
 import kotlin.time.measureTime
 import kotlin.math.*
 fun main(){
-    val bst = Map<Int,Int>()
+
     var start = System.currentTimeMillis()
 //    val fd = File("./src/").readText().split(' ', '\n' ).filter { it!=" " }
 //    fd.forEachIndexed{
 //        index, element -> bst[element] = index
 //    }
-    var min1 = Int.MAX_VALUE
-    var max1 = Int.MIN_VALUE
-    for(i in 0 until 17){
-        val key = Random.nextInt(100)
-        min1 = min(min1, key)
-        max1 = max(max1, key)
-        bst[key] = i
-    }
-    println("$max1 $min1")
-    println(bst)
-    bst.deleteMin()
-    println(bst)
-    bst.deleteMax()
-    println(bst)
-//    println(bst)
-//    bst.set(2,0)
-//    bst.set(44,1)
-//    bst.set(24,2)
-//    bst.set(12,4)
-//    bst.set(14,5)
-//    bst.set(17,6)
-//    bst.set(1,7)
-//    bst.set(7,9)
-//    bst.set(49,10)
-//    bst.set(3,11)
-//    bst.set(26,12)
-//    bst.set(25,13)
-//    bst.set(30,14)
-//    bst.set(40,15)
 
+    var j = 10000
+    while(j > 0) {
+        var min1 = Int.MAX_VALUE
+        var max1 = Int.MIN_VALUE
+        val bst = Map<Int,Int>()
+        j--
+        val t = Random.nextInt(17)
+        var m = 0
+        for (i in 0 until 17) {
+            val key = Random.nextInt(100)
+            if (i == t)
+                m = key
+            min1 = min(min1, key)
+            max1 = max(max1, key)
+            bst[key] = i
+        }
+        if(m == max1 || m == min1)
+            continue
+        println("$max1 $min1 $m")
+        println("$bst ${bst.size()}")
+        bst.deleteMin()
+        println("$bst ${bst.size()}")
+        bst.deleteMax()
+        println("$bst ${bst.size()}")
+        bst.delete(m)
+        println("$bst ${bst.size()}")
+    }
 }

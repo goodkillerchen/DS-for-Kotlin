@@ -1,11 +1,12 @@
 import java.util.ArrayDeque
+import kotlin.reflect.jvm.internal.ReflectProperties
 
 
 class Map<Key: Comparable<Key>,Value: Any> {
     private val RED = true
     private val BLACK = false
     private var root : Node<Key, Value> ?= null
-    data class Node<Key, Value>(val key: Key, var value: Value, var color: Boolean, var size:Int){
+    data class Node<Key, Value>(var key: Key, var value: Value, var color: Boolean, var size:Int){
         var left: Node<Key, Value>?=null
         var right: Node<Key, Value>?=null
         override fun toString(): String {
@@ -29,7 +30,14 @@ class Map<Key: Comparable<Key>,Value: Any> {
         if(this.size()!=0)
             root?.color = BLACK
     }
-    fun delete(){}
+    fun delete(key: Key){
+        if(!isRed(root?.left) && !isRed(root?.right)){
+            root?.color = RED
+        }
+        root = delete(root!!, key)
+        if(this.size() == 0)
+            root?.color = BLACK
+    }
     private fun isRed(x: Node<Key, Value>?) = x?.let { it.color == RED }?:false
     private fun rotateLeft(x: Node<Key, Value>): Node<Key, Value>{
         val h = x.right
@@ -85,7 +93,7 @@ class Map<Key: Comparable<Key>,Value: Any> {
         }
         return balance(x)
     }
-    private fun moveRedLeft(x: Node<Key, Value>?) {
+    private fun moveRedLeft(x: Node<Key, Value>?):Node<Key,Value> {
         var x1 = x
         flipColors(x1!!)
         if(isRed(x1.right?.left)){
@@ -93,38 +101,72 @@ class Map<Key: Comparable<Key>,Value: Any> {
             x1 = rotateLeft(x1)
             flipColors(x1)
         }
+        return x1
     }
     private fun deleteMin(x: Node<Key, Value>?): Node<Key, Value>?{
+        var x1 =x
         if(x!!.left == null)
             return null
         if(!isRed(x.left) && !isRed((x.left))){
-            moveRedLeft(x)
+            x1 = moveRedLeft(x)
         }
-        x.left = deleteMin(x.left)
-        return balance(x)
+        x1!!.left = deleteMin(x1.left)
+        return balance(x1)
+    }
+    private fun min(x:Node<Key,Value>): Node<Key, Value>{
+        return if(x.left == null)
+            x
+        else
+            min(x.left!!)
     }
     private fun deleteMax(x: Node<Key, Value>?): Node<Key, Value>?{
         var x1 = x
         if(isRed(x1?.left)){
-            x1 = rotateRight(x1!!)
+            x1 = rotateRight(x!!)
         }
         if(x1!!.right == null){
             return null
         }
         if(!isRed(x1.right) && !isRed((x1.right?.left))){
-            moveRedRight(x1)
+            x1 = moveRedRight(x1)
         }
         x1.right = deleteMax(x1.right)
         return balance(x1)
     }
-
-    private fun moveRedRight(x: Map.Node<Key, Value>) {
+    private fun delete(x: Node<Key, Value>?, key:Key): Node<Key, Value>?{
+        var x1 = x
+        if(key < x1!!.key){
+            if(!isRed(x1.left) && !isRed(x1.left?.left)){
+                x1 = moveRedLeft(x1)
+            }
+            x1.left = delete(x1.left, key)
+        }
+        else{
+            if(isRed(x1.left))
+                x1 = rotateRight(x1)
+            if(key == x1.key && x1.right == null){
+                return null
+            }
+            if(!isRed(x1.right) && !isRed(x1.right?.left))
+                x1 = moveRedRight(x1)
+            if(key == x1.key){
+                val h = min(x1.right!!)
+                x1.key = h.key
+                x1.value = h.value
+                x1.right = deleteMin(x1.right)
+            }else
+                x1.right = delete(x1.right, key)
+        }
+        return balance(x1)
+    }
+    private fun moveRedRight(x: Node<Key, Value>): Node<Key, Value> {
         var x1 = x
         flipColors(x1)
-        if(isRed(x1.left!!.left)){
+        if(isRed(x1.left?.left)){
             x1 = rotateRight(x1)
             flipColors(x1)
         }
+        return x1
     }
 
     private fun balance(x: Map.Node<Key, Value>): Node<Key, Value> {
