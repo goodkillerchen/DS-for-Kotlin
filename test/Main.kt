@@ -11,7 +11,7 @@ fun main(args: Array<String>){
         val m = Matrix(V, V1)
         init(m, graphA, graphB)
         val visColumns = BooleanArray(V1){ false }
-        //val ans = ArrayList<Matrix>()
+        //val getAns = ArrayList<Matrix>()
         dfs(graphA, graphB, visColumns, m, 0)
         if(ans.size > 0){
             for(item in ans){
